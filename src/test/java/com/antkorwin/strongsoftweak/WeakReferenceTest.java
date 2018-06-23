@@ -41,7 +41,6 @@ public class WeakReferenceTest {
         Assertions.assertThat(ref.get()).isNull();
     }
 
-
     @Test
     public void testWeakMap() throws InterruptedException {
         // Arrange
@@ -57,7 +56,6 @@ public class WeakReferenceTest {
         Thread.sleep(100);
         Assertions.assertThat(map).isEmpty();
     }
-
 
     @Test
     public void testWeakValue() throws InterruptedException {
@@ -75,7 +73,4 @@ public class WeakReferenceTest {
 
         Assertions.assertThat(map.isEmpty()).isFalse();
     }
-
-
-
 }
