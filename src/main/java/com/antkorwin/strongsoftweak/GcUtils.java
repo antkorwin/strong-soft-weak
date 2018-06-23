@@ -3,7 +3,6 @@ package com.antkorwin.strongsoftweak;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
 import java.util.concurrent.CountDownLatch;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -13,13 +12,31 @@ import static org.awaitility.Awaitility.await;
 /**
  * Created on 23.06.2018.
  *
+ * Utils to writing a tests which depends on behavior of the Garbage Collector.
+ *
  * @author Korovin Anatoliy
  */
 public class GcUtils {
 
-    public static int fullFinalizationPhantom() {
+    /**
+     *
+     * Runs garbage collector as many times as needed to release all
+     * unused Phantom & Weak references and invocation of finalize methods.
+     *
+     * This method can be useful when you testing a something depended on GC.
+     *
+     * IMPLEMENTATION-NOTES:
+     * This method creates a new PhantomReference on unreferenced object
+     * and then runs a GC multiple times until this object is finalize.
+     * Also, this method waits for enqueue the PhantomReference and expect
+     * to get this reference by polling a queue. This sequence of actions
+     * are not synchronous, therefore we need to wait in some places.
+     *
+     * @return a count of the applied GC iterations
+     */
+    public static int fullFinalization() {
 
-        final CountDownLatch finalizerRan = new CountDownLatch(1);
+        final CountDownLatch finalizerLatch = new CountDownLatch(1);
 
         ReferenceQueue<? super Object> queue = new ReferenceQueue<>();
         PhantomReference<Object> ref =
@@ -27,12 +44,12 @@ public class GcUtils {
                         new Object() {
                             @Override
                             protected void finalize() {
-                                finalizerRan.countDown();
+                                finalizerLatch.countDown();
                             }
                         },
                         queue);
 
-        int gcIterationCnt = awaitForLatchAndReference(finalizerRan, ref);
+        int gcIterationCnt = awaitForLatchAndReference(finalizerLatch, ref);
 
         await().atMost(1, SECONDS)
                .pollInterval(10, NANOSECONDS)
@@ -40,6 +57,7 @@ public class GcUtils {
 
         return gcIterationCnt;
     }
+
 
     private static int awaitForLatchAndReference(CountDownLatch latch, Reference<?> reference) {
 
@@ -73,11 +91,17 @@ public class GcUtils {
         throw new RuntimeException("Latch failed to count down by timeout");
     }
 
-    public static int fullFinalizationWeak() {
 
-        CountDownLatch finalizerLatch = new CountDownLatch(1);
-        ReferenceQueue<Object> queue = new ReferenceQueue<>();
-        WeakReference<Object> weakRef = new WeakReference<>(new Object(), queue);
-        return awaitForLatchAndReference(finalizerLatch, weakRef);
+    /**
+     * This method tries to allocate maximum available memory in runtime,
+     * and is catching an OutOfMemoryError.
+     */
+    public static void tryToAllocateAllAvailableMemory() {
+        try {
+            Object[] ignored = new Object[(int) Runtime.getRuntime().maxMemory()];
+        } catch (OutOfMemoryError e) {
+            System.out.println("exception: " + e.getMessage());
+        }
     }
+
 }

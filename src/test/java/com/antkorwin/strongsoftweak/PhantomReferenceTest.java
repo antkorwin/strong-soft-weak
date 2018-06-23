@@ -23,7 +23,7 @@ public class PhantomReferenceTest {
 
         // Act
         foo = null;
-        int gcPass = GcUtils.fullFinalizationPhantom();
+        int gcPass = GcUtils.fullFinalization();
 
         // Asserts
         Assertions.assertThat(ref.isEnqueued()).isTrue();
@@ -41,7 +41,7 @@ public class PhantomReferenceTest {
         // Act
         instance = null;
 
-        GcUtils.fullFinalizationPhantom();
+        GcUtils.fullFinalization();
 
         // Asserts
         Assertions.assertThat(ref.isEnqueued()).isTrue();
@@ -59,7 +59,7 @@ public class PhantomReferenceTest {
         foo = null;
 
         // Asserts
-        leakDetector.assertLeakExists();
+        leakDetector.assertLeaksExist();
     }
 
 

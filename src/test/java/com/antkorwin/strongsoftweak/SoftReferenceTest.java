@@ -24,17 +24,9 @@ public class SoftReferenceTest {
         Assertions.assertThat(softReference.get()).isNotNull();
 
         // Act
-        allocateAllMemory();
+        GcUtils.tryToAllocateAllAvailableMemory();
 
         // Asserts
         Assertions.assertThat(softReference.get()).isNull();
-    }
-
-    private void allocateAllMemory() {
-        try {
-            Object[] ignored = new Object[(int) Runtime.getRuntime().maxMemory()];
-        } catch (OutOfMemoryError e) {
-            log.error("exception: ", e);
-        }
     }
 }
