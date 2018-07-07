@@ -1,5 +1,6 @@
 package com.antkorwin.strongsoftweak;
 
+import com.antkorwin.commonutils.gc.GcUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;

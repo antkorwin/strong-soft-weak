@@ -1,5 +1,7 @@
 package com.antkorwin.strongsoftweak;
 
+import com.antkorwin.commonutils.gc.GcUtils;
+import com.antkorwin.commonutils.gc.LeakDetector;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
@@ -50,7 +52,7 @@ public class PhantomReferenceTest {
 
 
     @Test
-    public void testLeaks() {
+    public void testWithoutLeaks() {
         // Arrange
         Foo foo = new Foo();
         LeakDetector leakDetector = new LeakDetector(foo);
@@ -59,7 +61,21 @@ public class PhantomReferenceTest {
         foo = null;
 
         // Asserts
-        leakDetector.assertLeaksExist();
+        leakDetector.assertMemoryLeaksNotExist();
+    }
+
+    @Test
+    public void testWithLeak() {
+        // Arrange
+        Foo foo = new Foo();
+        Foo bar = foo;
+        LeakDetector leakDetector = new LeakDetector(foo);
+
+        // Act
+        foo = null;
+
+        // Asserts
+        leakDetector.assertMemoryLeaksExist();
     }
 
 
