@@ -1,5 +1,6 @@
 package com.antkorwin.strongsoftweak;
 
+import com.antkorwin.commonutils.gc.GcUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
@@ -50,10 +51,9 @@ public class WeakReferenceTest {
 
         // Act
         instance = null;
-        System.gc();
+        GcUtils.fullFinalization();
 
         // Asserts
-        Thread.sleep(100);
         Assertions.assertThat(map).isEmpty();
     }
 
@@ -66,11 +66,9 @@ public class WeakReferenceTest {
 
         // Act
         instance = null;
-        System.gc();
+        GcUtils.fullFinalization();
 
         // Asserts
-        Thread.sleep(3000);
-
         Assertions.assertThat(map.isEmpty()).isFalse();
     }
 }
